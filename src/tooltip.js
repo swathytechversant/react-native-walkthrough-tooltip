@@ -61,6 +61,7 @@ class Tooltip extends Component {
     children: null,
     closeOnChildInteraction: true,
     closeOnContentInteraction: true,
+    closeOnBackgroundInteraction: true,
     content: <View />,
     displayInsets: {},
     disableShadow: false,
@@ -76,6 +77,7 @@ class Tooltip extends Component {
     useInteractionManager: false,
     useReactNativeModal: true,
     topAdjustment: 0,
+    horizontalAdjustment: 0,
     accessible: true,
   };
 
@@ -90,6 +92,7 @@ class Tooltip extends Component {
     children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     closeOnChildInteraction: PropTypes.bool,
     closeOnContentInteraction: PropTypes.bool,
+    closeOnBackgroundInteraction: PropTypes.bool,
     content: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     displayInsets: PropTypes.shape({
       top: PropTypes.number,
@@ -106,6 +109,7 @@ class Tooltip extends Component {
     useInteractionManager: PropTypes.bool,
     useReactNativeModal: PropTypes.bool,
     topAdjustment: PropTypes.number,
+    horizontalAdjustment: PropTypes.number,
     accessible: PropTypes.bool,
   };
 
@@ -241,14 +245,10 @@ class Tooltip extends Component {
 
   measureContent = e => {
     const { width, height } = e.nativeEvent.layout;
-    const newContentSize = new Size(width, height);
-        this.setState(({ contentSize }) => ({
-         contentSize: {
-           width: Math.max(contentSize.width, newContentSize.width),
-          height: Math.max(contentSize.height, newContentSize.height),
-          }}), () => {
-           this.computeGeometry();
-         });
+    const contentSize = new Size(width, height);
+    this.setState({ contentSize }, () => {
+      this.computeGeometry();
+    });
   };
 
   onChildMeasurementComplete = rect => {
@@ -363,7 +363,11 @@ class Tooltip extends Component {
   };
 
   renderChildInTooltip = () => {
-    const { height, width, x, y } = this.state.childRect;
+    let { height, width, x, y } = this.state.childRect;
+
+    if (this.props.horizontalAdjustment) {
+      x = x + this.props.horizontalAdjustment;
+    }
 
     const onTouchEnd = () => {
       if (this.props.closeOnChildInteraction) {
@@ -410,6 +414,12 @@ class Tooltip extends Component {
 
     const hasChildren = React.Children.count(this.props.children) > 0;
 
+    const onPressBackground = () => {
+      if (this.props.closeOnBackgroundInteraction) {
+        this.props.onClose();
+      }
+    };
+
     const onPressContent = () => {
       if (this.props.closeOnContentInteraction) {
         this.props.onClose();
@@ -418,7 +428,7 @@ class Tooltip extends Component {
 
     return (
       <TouchableWithoutFeedback
-        onPress={this.props.onClose}
+        onPress={onPressBackground}
         accessible={this.props.accessible}
       >
         <View style={generatedStyles.containerStyle}>
