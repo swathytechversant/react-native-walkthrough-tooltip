@@ -65,6 +65,9 @@ declare module 'react-native-walkthrough-tooltip' {
     // When true (default), onClose prop is called when user touches content element
     closeOnContentInteraction?: boolean;
 
+    // When true (default), onClose prop is called when user touches background element
+    closeOnBackgroundInteraction?: boolean;
+
     // This is the view displayed in the tooltip popover bubble
     content?: React.ReactElement;
 
@@ -123,12 +126,26 @@ declare module 'react-native-walkthrough-tooltip' {
     topAdjustment?: number;
 
     /**
+     * Horizontal adjustment in pixels for the container. If for some reason the alignment of the child element we are
+     * highlighting is off, the horizontalAdjustment prop can be used to tweak the horizontal positioning of the child
+     * element which we are highlighting.
+     ```js
+        // Usage Example
+        <Tooltip horizontalAdjustment={-84} />
+     ```
+     */
+    horizontalAdjustment?: number;
+
+    /**
      *Set this to false if you want to override the default accessible on the root TouchableWithoutFeedback
      */
     accessible?: boolean;
 
     /** Will use given component instead of default react-native Modal component **/
     modalComponent?: object;
+
+    // Support for nested elements within the Tooltip component.
+    children?: React.ReactNode;
   }
 
   /**
